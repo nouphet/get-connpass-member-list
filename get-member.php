@@ -23,10 +23,10 @@ function get_list($list) {
 }
 
 // タイトル
-echo $doc["head"]["title"]->text() . "\n";
+echo '# ' . $doc["head"]["title"]->text() . "\n";
 
 // 現地参加者リスト
-echo '## ' . $doc[".applicant_area > div:nth-child(3) > table > thead > tr > th > span.label_ptype_name"]->text();
+echo '## ' . $doc["#main > .applicant_area > div:nth-child(3) > table > thead > tr > th > span.label_ptype_name"]->text();
 echo "\n";
 $list = $doc["#main > div.applicant_area > div:nth-child(3)"]->find(".display_name")->text();
 get_list($list);
