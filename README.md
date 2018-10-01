@@ -8,10 +8,16 @@ Connpassから参加者リストを一撃で取得するスクリプトです。
 ## How to use.
 
 ```bash
+$ php get-member.php <告知ページURL>
+```
+
+### 例
+
+```bash
 $ php get-member.php https://yyphp.connpass.com/event/100185/
 ```
 
-## Result
+### Result
 
 ```bash
 # #YYPHP #53【PHPの情報交換・ワイワイ話そう・仲間作り・ゆるめ・にぎやかめ】 - 参加者・申込者一覧 - connpass
