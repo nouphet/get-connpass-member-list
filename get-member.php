@@ -1,5 +1,6 @@
 <?php
 
+ini_set('display_errors', "Off");
 require_once './phpQuery-onefile.php';
 
 function print_list($list) {
@@ -13,7 +14,7 @@ function print_list($list) {
     echo "\n";
 }
 
-// 取得したいwebサイトを読み込み
+// 引数があるかチェック
 if ($argv[1] == null) {
     echo 'Missing $url Parameter.' . "\n";
     echo 'Please set Connpass URL.' . "\n";
@@ -21,12 +22,14 @@ if ($argv[1] == null) {
     exit;
 }
 
+// 取得したいwebサイトを読み込み
 $url = $argv[1];
 $url = $url . 'participation/';
 $html = file_get_contents($url);
 
+/* HTMLが読み込めたかどうかをチェック */
 if ($html == false) {
-    echo '$html is empty. Please chech your url.' .  "\n";
+    echo '$html is empty. Please chech your URL.' .  "\n";
     exit;
 }
 
@@ -35,23 +38,16 @@ $doc = phpQuery::newDocument($html);
 
 // タイトル
 echo '# ' . $doc["head"]["title"]->text() . "\n";
+echo  '①PHP歴、②話したいこと/聞きたいこと、③簡単な自己紹介（オプション）' . "\n";
 
-// 現地参加者リスト
-echo '## ' . $doc["#main > .applicant_area > div:nth-child(3) > table > thead > tr > th > span.label_ptype_name"]->text();
-echo "\n";
-$list = $doc["#main > div.applicant_area > div:nth-child(3)"]->find(".display_name")->text();
-print_list($list);
+function print_member_of_participants($doc) {
+    for ($i = 3; $i <= 5; $i++) {
+        echo '## ' . $doc["#main > .applicant_area > div:nth-child($i) > table > thead > tr > th > span.label_ptype_name"]->text();
+        echo "\n";
+        $list = $doc["#main > div.applicant_area > div:nth-child($i)"]->find(".display_name")->text();
+        print_list($list);
+    }
+}
 
-// リモート参加者リスト
-echo '## ' . $doc["#main > div.applicant_area > div:nth-child(4) > table > thead > tr > th > span.label_ptype_name"]->text();
-echo "\n";
-$list = $doc["#main > div.applicant_area > div:nth-child(4)"]->find(".display_name")->text();
-print_list($list);
-
-// YYPHP主催者・スタッフ枠
-echo '## ' . $doc["#main > div.applicant_area > div:nth-child(5) > table > thead > tr > th > span.label_ptype_name"]->text();
-echo "\n";
-
-$list = $doc["#main > div.applicant_area > div:nth-child(5)"]->find(".display_name")->text();
-print_list($list);
-
+/* main */
+print_member_of_participants($doc);
