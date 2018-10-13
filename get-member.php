@@ -14,6 +14,23 @@ function print_list($list): void  {
     echo "\n";
 }
 
+// 引数があるかチェック
+if ($argv[1] == null) {
+    echo 'Missing $url Parameter.' . "\n";
+    echo 'Please set Connpass URL.' . "\n";
+    echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
+    exit;
+}
+
+/* HTMLが読み込めたかどうかをチェック */
+function check_html($html): string {
+    if ($html === false) {
+        echo '$html is empty. Please chech your URL.' .  "\n";
+        exit;
+    }
+    return true;
+}
+
 // 参加車のリストを取得して表示
 function print_members_of_participants($doc): void {
     for ($i = 3; $i <= 5; $i++) {
@@ -24,24 +41,11 @@ function print_members_of_participants($doc): void {
     }
 }
 
-// 引数があるかチェック
-if ($argv[1] == null) {
-    echo 'Missing $url Parameter.' . "\n";
-    echo 'Please set Connpass URL.' . "\n";
-    echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
-    exit;
-}
-
 // 取得したいwebサイトを読み込み
 $url = $argv[1];
 $url = $url . 'participation/';
 $html = file_get_contents($url);
-
-/* HTMLが読み込めたかどうかをチェック */
-if ($html == false) {
-    echo '$html is empty. Please chech your URL.' .  "\n";
-    exit;
-}
+check_html($html);
 
 // 取得したい情報の全体を取得
 $doc = phpQuery::newDocument($html);
