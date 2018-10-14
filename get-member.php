@@ -19,14 +19,14 @@ if ($argv[1] == null) {
     echo 'Missing $url Parameter.' . "\n";
     echo 'Please set Connpass URL.' . "\n";
     echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
-    exit;
+    exit(1);
 }
 
 /* HTMLが読み込めたかどうかをチェック */
 function check_html($html): string {
     if ($html === false) {
-        echo '$html is empty. Please chech your URL.' .  "\n";
-        exit;
+        echo '$html is empty. Please check your URL.' .  "\n";
+        exit(1);
     }
     return true;
 }
