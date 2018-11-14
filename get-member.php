@@ -3,25 +3,6 @@
 ini_set('display_errors', "Off");
 require_once './phpQuery-onefile.php';
 
-function print_list($list): void  {
-    $lines = explode("\n", $list);
-    foreach($lines as $line) {
-        $line = trim($line);
-        if (!empty($line)) {
-            echo '* ' . $line . "\n";
-        }
-    }
-    echo "\n";
-}
-
-// 引数があるかチェック
-if ($argv[1] == null) {
-    echo 'Missing $url Parameter.' . "\n";
-    echo 'Please set Connpass URL.' . "\n";
-    echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
-    exit(1);
-}
-
 /* HTMLが読み込めたかどうかをチェック */
 function check_html($html): string {
     if ($html === false) {
@@ -39,6 +20,25 @@ function print_members_of_participants($doc): void {
         $list = $doc["#main > div.applicant_area > div:nth-child($i)"]->find(".display_name")->text();
         print_list($list);
     }
+}
+
+function print_list($list): void {
+    $lines = explode("\n", $list);
+    foreach($lines as $line) {
+        $line = trim($line);
+        if (!empty($line)) {
+            echo '* ' . $line . "\n";
+        }
+    }
+    echo "\n";
+}
+
+// 引数があるかチェック
+if ($argv[1] == null) {
+    echo 'Missing $url Parameter.' . "\n";
+    echo 'Please set Connpass URL.' . "\n";
+    echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
+    exit(1);
 }
 
 // 取得したいwebサイトを読み込み
