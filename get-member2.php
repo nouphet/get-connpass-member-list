@@ -98,6 +98,11 @@ class Arguments
     {
         return $this->argv[1] === null;
     }
+
+    public function convert2String(): string
+    {
+        return $this->argv[1];
+    }
 }
 
 class Application
@@ -121,7 +126,7 @@ class Application
             exit(1);
         }
 
-        $url = $this->args; //ここから Arguments classの振る舞い足りない データをもらう方法がない
+        $url = $this->args->convert2String();
         $htmlDoc = new HtmlPreparation($url);
         $htmlDoc->fetch();
 
@@ -144,7 +149,7 @@ class Application
 $app = new Application(new Arguments($argv));
 $app->run();
 
-/**
+/** TODO
  * echoは別にする
  * phpQueryObjectに依存しまくっている
  * Markdownの構造とデータを別にする
