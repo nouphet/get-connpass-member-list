@@ -61,9 +61,11 @@ class MemberList
      */
     public function printMembersOfParticipants(): void
     {
-        for ($i = 3; $i <= 5; $i++) {
-            echo '## ' . $this->doc["#main > .applicant_area > div:nth-child($i) > table > thead > tr > th > span.label_ptype_name"]->text();
-            echo "\n";
+        for ($i = 3; $i <= 6; $i++) {
+            $text = $this->doc["#main > .applicant_area > div:nth-child($i) > table > thead > tr > th > span.label_ptype_name"]->text();
+            $doc = new Output($text);
+            $doc->exportMdH2();
+
             $list = $this->doc["#main > div.applicant_area > div:nth-child($i)"]->find(".display_name")->text();
             $this->printList($list);
         }
@@ -75,7 +77,9 @@ class MemberList
         foreach($lines as $line) {
             $line = trim($line);
             if (!empty($line)) {
-                echo '* ' . $line . "\n";
+                $text = $line . "\n";
+                $doc = new Output($text);
+                $doc->exportMdList();
             }
         }
         echo "\n";
@@ -89,6 +93,10 @@ class Arguments
      */
     private $argv;
 
+    /**
+     * Arguments constructor.
+     * @param array $argv
+     */
     public function __construct(array $argv)
     {
         $this->argv = $argv;
@@ -99,9 +107,45 @@ class Arguments
         return $this->argv[1] === null;
     }
 
-    public function convert2String(): string
+    public function convertArray2String(): string
     {
         return $this->argv[1];
+    }
+}
+
+class Output
+{
+    /**
+     * @var string
+     */
+    private $msg;
+
+    /**
+     * @param string $msg
+     */
+    public function __construct(string $msg)
+    {
+        $this->msg = $msg;
+    }
+
+    public function exportMdH1()
+    {
+        print '# ' . $this->msg;
+    }
+
+    public function exportMdH2()
+    {
+        print '## ' . $this->msg . "\n";
+    }
+
+    public function exportMdList()
+    {
+        print '* ' . $this->msg;
+    }
+
+    public function exportPlainText()
+    {
+        print $this->msg;
     }
 }
 
@@ -120,25 +164,36 @@ class Application
     public function run(): void
     {
         if ($this->args->isInvalid()) {
-            echo 'Missing $url Parameter.' . "\n";
-            echo 'Please set Connpass URL.' . "\n";
-            echo 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
+            $text = 'Missing $url Parameter.' . "\n";
+            $text .= 'Please set Connpass URL.' . "\n";
+            $text .= 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
+            $doc = new Output($text);
+            $doc->exportPlainText();
+
             exit(1);
         }
 
-        $url = $this->args->convert2String();
+        $url = $this->args->convertArray2String();
         $htmlDoc = new HtmlPreparation($url);
         $htmlDoc->fetch();
 
         if ($htmlDoc->isInvalid()) {
-            echo '$html is empty. Please check your URL.' .  "\n";
+            $text = '$html is empty. Please check your URL.' .  "\n";
+            $doc = new Output($text);
+            $doc->exportPlainText();
+
             exit(1);
         }
 
         $phpQueryObject = $htmlDoc->export();
 
-        echo '# ' . $phpQueryObject["head"]["title"]->text() . "\n";
-        echo  '①PHP歴、②話したいこと/聞きたいこと、③簡単な自己紹介（オプション）' . "\n";
+        $text = $phpQueryObject["head"]["title"]->text() . "\n";
+        $doc = new Output($text);
+        $doc->exportMdH1();
+
+        $text = '①PHP歴、②話したいこと/聞きたいこと、③簡単な自己紹介（オプション）' . "\n";
+        $doc = new Output($text);
+        $doc->exportPlainText();
 
         /* main */
         $memberList = new MemberList($phpQueryObject);
@@ -150,11 +205,14 @@ $app = new Application(new Arguments($argv));
 $app->run();
 
 /** TODO
- * echoは別にする
+ * echoは別にする                   : 2018/11/18 done
+ * Markdownの構造とデータを別にする    : 2018/11/18 done
  * phpQueryObjectに依存しまくっている
- * Markdownの構造とデータを別にする
  *
  * 構造をとってくる
  * 変換する
  * 出力する
+ *
+ * DIPを実装する
+ * alt + enter
  */
