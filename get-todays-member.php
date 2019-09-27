@@ -3,6 +3,75 @@
 ini_set('display_errors', "Off");
 require_once './phpQuery-onefile.php';
 
+/* TODO
+* URLを指定しなくても直近の回の情報を取得できるようにする
+*/
+
+$base_url = "https://yyphp.connpass.com";
+
+class HtmlPreparationOfFirstUrl
+{
+    /**
+     * @var string
+     */
+    private $base_url;
+
+    /**
+     * @var string|bool
+     */
+    private $html;
+
+    /**
+     * MemberList constructor.
+     * @param $base_url
+     */
+    public function __construct(string $base_url)
+    {
+        $this->base_url = $base_url;
+    }
+
+    /**
+     * 取得したいページを読み込み
+     */
+    public function fetch(): void
+    {
+        $base_url = $this->base_url;
+        $this->html = file_get_contents($base_url);
+    }
+
+    public function isInvalid(): bool
+    {
+        return $this->html === false;
+    }
+
+    public function export(): phpQueryObject
+    {
+        return phpQuery::newDocument($this->html);
+    }
+}
+
+class getFirstUrl
+{
+    /**
+     * @var phpQueryObject
+     */
+    private $doc;
+
+    public function __construct(phpQueryObject $doc)
+    {
+        $this->doc = $doc;
+    }
+
+    /**
+     * 参加者のリストを取得して表示
+     */
+    public function get(): string
+    {
+        $firstUrl = $this->doc["#main > div.open_event_area.group_box > div > div:nth-child(1) > div.group_event_inner > p.event_title > a"]->attr("href");
+        return $firstUrl;
+    }
+}
+
 class HtmlPreparation
 {
     /**
@@ -86,32 +155,32 @@ class MemberList
     }
 }
 
-class Arguments
-{
-    /**
-     * @var array
-     */
-    private $argv;
-
-    /**
-     * Arguments constructor.
-     * @param array $argv
-     */
-    public function __construct(array $argv)
-    {
-        $this->argv = $argv;
-    }
-
-    public function isInvalid(): bool
-    {
-        return $this->argv[1] === null;
-    }
-
-    public function convertArray2String(): string
-    {
-        return $this->argv[1];
-    }
-}
+//class Arguments
+//{
+//    /**
+//     * @var array
+//     */
+//    private $argv;
+//
+//    /**
+//     * Arguments constructor.
+//     * @param array $argv
+//     */
+//    public function __construct(array $argv)
+//    {
+//        $this->argv = $argv;
+//    }
+//
+//    public function isInvalid(): bool
+//    {
+//        return $this->argv[1] === null;
+//    }
+//
+//    public function convertArray2String(): string
+//    {
+//        return $this->argv[1];
+//    }
+//}
 
 class Output
 {
@@ -154,26 +223,32 @@ class Application
     /**
      * @var Arguments
      */
-    private $args;
+    private $base_url;
 
-    public function __construct(Arguments $args)
+    public function __construct(string $base_url)
     {
-        $this->args = $args;
+        $this->base_url = $base_url;
     }
 
     public function run(): void
     {
-        if ($this->args->isInvalid()) {
-            $text = 'Missing $url Parameter.' . "\n";
-            $text .= 'Please set Connpass URL.' . "\n";
-            $text .= 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
-            $doc = new Output($text);
-            $doc->exportMdPlainText();
+//        if ($this->args->isInvalid()) {
+//            $text = 'Missing $url Parameter.' . "\n";
+//            $text .= 'Please set Connpass URL.' . "\n";
+//            $text .= 'ex.) php get-member.php https://yyphp.connpass.com/event/103258/' . "\n";
+//            $doc = new Output($text);
+//            $doc->exportMdPlainText();
+//
+//            exit(1);
+//        }
 
-            exit(1);
-        }
+        $first_url = new HtmlPreparationOfFirstUrl($this->base_url);
+        $first_url->fetch();
+        $first_url->isInvalid();
+        $url = new getFirstUrl($first_url->export());
+        $url = $url->get();
 
-        $url = $this->args->convertArray2String();
+//        $url = $this->base_url->convertArray2String();
         $htmlDoc = new HtmlPreparation($url);
         $htmlDoc->fetch();
 
@@ -201,10 +276,11 @@ class Application
     }
 }
 
-$app = new Application(new Arguments($argv));
+$app = new Application($base_url);
 $app->run();
 
-/** TODO
+
+/* TODO
  * echoは別にする                   : 2018/11/18 done
  * Markdownの構造とデータを別にする    : 2018/11/18 done
  * 参加回数を取得する
