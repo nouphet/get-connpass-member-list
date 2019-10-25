@@ -191,7 +191,10 @@ class Application
         $doc = new Output($text);
         $doc->exportMdH1();
 
-        $text = '①PHP歴、②話したいこと/聞きたいこと、③簡単な自己紹介（オプション）' . "\n";
+        $text = '①TS歴' . "\n";
+        $text = $text . '②話したいこと/聞きたいこと' . "\n";
+        $text = $text .'③簡単な自己紹介（オプション）' . "\n";
+        $text = $text .'④告知等(あれば)' . "\n";
         $doc = new Output($text);
         $doc->exportMdPlainText();
 
@@ -223,4 +226,3 @@ $app->run();
  *  変換する
  *  出力する
  */
-
